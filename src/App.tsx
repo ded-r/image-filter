@@ -5,6 +5,7 @@ function App() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [filteredImages, setFilteredImages] = useState<{ [key: string]: string } | null>(null);
     const [message, setMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedFile(e.target.files ? e.target.files[0] : null);
@@ -16,6 +17,9 @@ function App() {
             setMessage("Please select an image file.");
             return;
         }
+
+        setIsLoading(true);
+        setMessage("");
 
         const formData = new FormData();
         formData.append("image", selectedFile);
@@ -31,6 +35,8 @@ function App() {
             setMessage("");
         } catch (error) {
             setMessage("An error occurred while processing the image.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -46,8 +52,18 @@ function App() {
                         Apply Filters
                     </button>
                 </form>
-                {message && <p>{message}</p>}
-                {filteredImages && (
+
+                {isLoading && (
+                    <div className="text-center mt-20">
+                        <p>
+                            <b>Loading...</b>
+                        </p>
+                    </div>
+                )}
+
+                {message && <p className="text-center text-red-500 mt-5">{message}</p>}
+
+                {filteredImages && !isLoading && (
                     <div className="grid lg:grid-cols-3 mt-20">
                         {Object.entries(filteredImages).map(([filterName, base64Image]) => (
                             <div key={filterName} className="flex flex-col items-center justify-center">
